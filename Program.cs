@@ -1,15 +1,13 @@
-﻿using HtmlAgilityPack;
-
+﻿using System.Text;
+using System.Text.RegularExpressions;
+using HtmlAgilityPack;
 using MongoDB.Driver;
 using scrapingWeb.Entity;
-using System.Text;
-using System.Text.RegularExpressions;
 
 class Program
 {
-    static  void Main(String[] args)
+    static void Main(string[] args)
     {
-
         string connectionString = "mongodb://localhost:27017";
         string databaseName = "Yazlab2_1";
         string collectionName = "Articles";
@@ -21,34 +19,35 @@ class Program
         string url = "https://dergipark.org.tr/tr/search?q=&section=articles";
 
         List<string> pdfLinks = new List<string>();
-        List<string> pageLinks = new List<string>();
-        List<Article> articles = new List<Article>();
 
-        ScrapPageLinks(url, pageLinks);
+        ScrapArticleLinks("https://dergipark.org.tr/tr/search?q=mustafa&section=articles", pdfLinks);
 
-        Console.WriteLine(pageLinks);
-
-        foreach (string link in pageLinks)
-        {
-            ScrapArticleLinks(link, pdfLinks);
-        }
+        List<Thread> threads = new List<Thread>();
 
         foreach (string link in pdfLinks)
         {
-            Article article = new Article();
-            ScrapArticle(link, article);
-            articles.Add(article);
+            Thread thread = new Thread(() =>
+            {
+                Article article = new Article();
+                ScrapArticle(link, article);
+                collection.InsertOne(article);
+            });
+            threads.Add(thread);
+            thread.Start();
         }
 
-        collection.InsertMany(articles);
+        foreach (Thread thread in threads)
+        {
+            thread.Join();
+        }
     }
 
-    static void ScrapArticle(string url,Article article)
+    static void ScrapArticle(string url, Article article)
     {
         HtmlWeb web = new HtmlWeb();
         HtmlDocument document = web.Load(url);
 
-       
+
         //Yayın Adı
 
         HtmlNode nameNode = document.DocumentNode.SelectSingleNode("//*[@id=\"article_en\"]/div[1]/h3");
@@ -120,7 +119,7 @@ class Program
             StringBuilder allKeywordsBuilder = new StringBuilder();
             foreach (HtmlNode node in keywordNodes)
             {
-                
+
                 string keyWords = node.InnerText;
                 allKeywordsBuilder.Append(keyWords);
                 Console.WriteLine("\n Anahtar Kelimeler Makale: " + keyWords);
@@ -174,11 +173,11 @@ class Program
         string urlAdress = url;
         article.UrlAdress = urlAdress;
         Console.WriteLine("\n Url Adresi : " + urlAdress);
-
     }
 
-    static void ScrapArticleLinks(string url, List<String> pdfLinks)
+    static void ScrapArticleLinks(string url, List<string> pdfLinks)
     {
+
         Console.Write("SelectLinks fonksiyonuna giriş yaptı\n");
         string onLink = "https://dergipark.org.tr";
         HtmlWeb web = new HtmlWeb();
@@ -191,6 +190,7 @@ class Program
         ///////////////////////////////////////////////////////////////////
         foreach (var link in links)
         {
+
 
             HtmlWeb web2 = new HtmlWeb();
             HtmlDocument document2 = web2.Load(link);
@@ -211,7 +211,6 @@ class Program
                 Console.WriteLine(link);
             }
         }
-
     }
 
     static string ScrapPageLinks(string url, List<string> pageLinks)

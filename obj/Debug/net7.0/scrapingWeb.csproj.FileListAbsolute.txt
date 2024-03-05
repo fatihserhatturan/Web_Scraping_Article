@@ -39,3 +39,4 @@ C:\Users\fatti\Desktop\Yazlab2.0\scrapingWeb\obj\Debug\net7.0\refint\scrapingWeb
 C:\Users\fatti\Desktop\Yazlab2.0\scrapingWeb\obj\Debug\net7.0\scrapingWeb.pdb
 C:\Users\fatti\Desktop\Yazlab2.0\scrapingWeb\obj\Debug\net7.0\scrapingWeb.genruntimeconfig.cache
 C:\Users\fatti\Desktop\Yazlab2.0\scrapingWeb\obj\Debug\net7.0\ref\scrapingWeb.dll
+C:\Users\fatti\Desktop\Yazlab2.0\scrapingWeb\obj\Debug\net7.0\scrapingWeb.sourcelink.json
